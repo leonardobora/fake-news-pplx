@@ -289,6 +289,15 @@
                                 <p><strong>URL:</strong> {{ result.content_data.url }}</p>
                                 <p><strong>Domínio:</strong> {{ result.content_data.domain }}</p>
                                 <p><strong>Título:</strong> {{ result.content_data.title }}</p>
+                                {% if result.domain_analysis %}
+                                <p><strong>Credibilidade do Domínio:</strong> {{ result.domain_analysis.credibility_score }}/10
+                                {% if result.domain_analysis.is_reputable %}
+                                    <span style="color: green;">✓ Fonte Respeitável</span>
+                                {% elif result.domain_analysis.has_suspicious_indicators %}
+                                    <span style="color: red;">⚠ Indicadores Suspeitos</span>
+                                {% endif %}
+                                </p>
+                                {% endif %}
                             </div>
                             
                             {% if result.content_data.content %}
@@ -314,9 +323,15 @@
                                     <div class="metric-label">Caracteres</div>
                                 </div>
                                 <div class="metric">
-                                    <div class="metric-value">{{ (result.text_data.length / 5) | round | int }}</div>
-                                    <div class="metric-label">Palavras (aprox.)</div>
+                                    <div class="metric-value">{{ result.text_data.word_count }}</div>
+                                    <div class="metric-label">Palavras</div>
                                 </div>
+                                {% if result.text_data.quality_score %}
+                                <div class="metric">
+                                    <div class="metric-value">{{ result.text_data.quality_score }}/10</div>
+                                    <div class="metric-label">Qualidade</div>
+                                </div>
+                                {% endif %}
                             </div>
                             
                             <h4>Prévia do Texto Analisado:</h4>

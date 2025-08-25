@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Erro - Detector de Fake News</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .error-container {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 500px;
+            margin: 20px;
+        }
+        
+        .error-code {
+            font-size: 4rem;
+            font-weight: bold;
+            color: #e74c3c;
+            margin-bottom: 20px;
+        }
+        
+        .error-title {
+            font-size: 1.5rem;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        
+        .error-message {
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 8px;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        {% if error_code == 404 %}
+            <div class="icon">🔍</div>
+            <div class="error-code">404</div>
+            <h1 class="error-title">Página Não Encontrada</h1>
+            <p class="error-message">
+                A página que você está procurando não existe ou foi movida.
+            </p>
+        {% elif error_code == 500 %}
+            <div class="icon">⚠️</div>
+            <div class="error-code">500</div>
+            <h1 class="error-title">Erro Interno</h1>
+            <p class="error-message">
+                Ocorreu um erro interno no servidor. Nossa equipe foi notificada.
+            </p>
+        {% else %}
+            <div class="icon">❌</div>
+            <div class="error-code">{{ error_code }}</div>
+            <h1 class="error-title">Erro</h1>
+            <p class="error-message">
+                {{ error_message }}
+            </p>
+        {% endif %}
+        
+        <a href="/" class="btn">🏠 Voltar ao Início</a>
+    </div>
+</body>
+</html>
