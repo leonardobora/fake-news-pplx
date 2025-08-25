@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 Fake News Detector</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .form-group {
+            margin: 15px 0;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        select, input, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            background-color: #e9ecef;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Fake News Detector</h1>
+        <p><strong>Sistema de Detecção de Fake News com CrewAI e Perplexity API</strong></p>
+        
+        {% if not api_keys_configured %}
+            <div class="status error">
+                ❌ Chaves de API não configuradas. Verifique o arquivo .env
+            </div>
+        {% else %}
+            <div class="status success">
+                ✅ Sistema configurado e pronto para análise!
+            </div>
+            
+            <form id="analysisForm">
+                <div class="form-group">
+                    <label for="inputType">Tipo de entrada:</label>
+                    <select id="inputType" onchange="toggleInput()">
+                        <option value="URL">URL</option>
+                        <option value="Texto">Texto</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <div id="urlInput">
+                        <label for="urlContent">URL da notícia:</label>
+                        <input type="url" id="urlContent" placeholder="https://exemplo.com/noticia">
+                    </div>
+                    <div id="textInput" style="display: none;">
+                        <label for="textContent">Texto da notícia:</label>
+                        <textarea id="textContent" placeholder="Cole o texto da notícia aqui..."></textarea>
+                    </div>
+                </div>
+                
+                <button type="submit">🔍 Analisar</button>
+            </form>
+            
+            <div id="result" class="result" style="display: none;"></div>
+        {% endif %}
+    </div>
+
+    <script>
+        function toggleInput() {
+            const inputType = document.getElementById('inputType').value;
+            const urlDiv = document.getElementById('urlInput');
+            const textDiv = document.getElementById('textInput');
+            
+            if (inputType === 'URL') {
+                urlDiv.style.display = 'block';
+                textDiv.style.display = 'none';
+            } else {
+                urlDiv.style.display = 'none';
+                textDiv.style.display = 'block';
+            }
+        }
+
+        document.getElementById('analysisForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const inputType = document.getElementById('inputType').value;
+            const content = inputType === 'URL' 
+                ? document.getElementById('urlContent').value 
+                : document.getElementById('textContent').value;
+            
+            if (!content.trim()) {
+                alert('Por favor, insira uma URL ou texto para análise.');
+                return;
+            }
+            
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '<p>Analisando...</p>';
+            
+            try {
+                const response = await fetch('/analyze', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        input_type: inputType,
+                        content: content
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <h3>Resultado da Análise</h3>
+                        <p><strong>Tipo:</strong> ${data.input_type}</p>
+                        <p><strong>Status:</strong> ${data.message}</p>
+                        <p><strong>Conteúdo:</strong> ${data.content}</p>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `<p style="color: red;">Erro: ${data.error}</p>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<p style="color: red;">Erro na requisição: ${error.message}</p>`;
+            }
+        });
+    </script>
+</body>
+</html>

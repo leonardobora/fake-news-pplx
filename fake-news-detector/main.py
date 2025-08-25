@@ -1,46 +1,39 @@
-import streamlit as st
+from flask import Flask, render_template, request, jsonify
 import os
 from dotenv import load_dotenv
 
 # Load environment variables
 load_dotenv()
 
-def main():
-    st.set_page_config(
-        page_title="🔍 Fake News Detector",
-        page_icon="🔍",
-        layout="wide",
-        initial_sidebar_state="expanded"
-    )
-    
-    st.title("🔍 Fake News Detector")
-    st.markdown("**Sistema de Detecção de Fake News com CrewAI e Perplexity API**")
-    
+app = Flask(__name__)
+
+@app.route('/')
+def index():
     # Check API keys
     perplexity_key = os.getenv('PERPLEXITY_API_KEY')
     openai_key = os.getenv('OPENAI_API_KEY')
     
-    if not perplexity_key or not openai_key:
-        st.error("❌ Chaves de API não configuradas. Verifique o arquivo .env")
-        st.stop()
+    api_keys_configured = bool(perplexity_key and openai_key)
     
-    st.success("✅ Sistema configurado e pronto para análise!")
+    return render_template('index.html', api_keys_configured=api_keys_configured)
+
+@app.route('/analyze', methods=['POST'])
+def analyze():
+    data = request.get_json()
+    input_type = data.get('input_type')
+    content = data.get('content')
     
-    # Input options
-    input_type = st.selectbox("Tipo de entrada:", ["URL", "Texto"])
+    if not content:
+        return jsonify({'error': 'Por favor, insira uma URL ou texto para análise.'}), 400
     
-    if input_type == "URL":
-        content = st.text_input("URL da notícia:", placeholder="https://exemplo.com/noticia")
-    else:
-        content = st.text_area("Texto da notícia:", height=200)
-    
-    if st.button("🔍 Analisar"):
-        if content:
-            with st.spinner("Analisando..."):
-                st.info("Análise em progresso... (Este é um demo)")
-                # Here would be the actual analysis logic
-        else:
-            st.warning("Por favor, insira uma URL ou texto para análise.")
+    # Here would be the actual analysis logic
+    # For now, return a demo response
+    return jsonify({
+        'status': 'success',
+        'message': 'Análise em progresso... (Este é um demo)',
+        'input_type': input_type,
+        'content': content[:100] + '...' if len(content) > 100 else content
+    })
 
 if __name__ == "__main__":
-    main()
+    app.run(debug=True, host='0.0.0.0', port=5000)

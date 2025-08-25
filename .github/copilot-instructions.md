@@ -4,7 +4,7 @@ Always reference these instructions first and fallback to search or bash command
 
 ## Project Overview
 
-This repository contains a fake news detection system that uses multi-agent AI architecture with CrewAI, Streamlit web interface, and Perplexity API for fact verification. The project is currently in a **generator/scaffolding phase** - the main files are scripts that create the actual project structure rather than the final implementation.
+This repository contains a fake news detection system that uses multi-agent AI architecture with CrewAI, Flask web interface, and Perplexity API for fact verification. The project is currently in a **generator/scaffolding phase** - the main files are scripts that create the actual project structure rather than the final implementation.
 
 ## Working Effectively
 
@@ -28,10 +28,10 @@ Run these commands to create the actual project:
 ### Core Dependencies (When Generated Project Exists)
 ```bash
 # Essential packages - install these first
-pip install streamlit python-dotenv requests beautifulsoup4
+pip install flask python-dotenv requests beautifulsoup4
 
 # Full stack (if network allows)
-pip install streamlit crewai crewai-tools requests beautifulsoup4 python-dotenv newspaper3k langchain openai pydantic PyYAML
+pip install flask crewai crewai-tools requests beautifulsoup4 python-dotenv newspaper3k langchain openai pydantic PyYAML
 ```
 
 ### Running the Application
@@ -39,9 +39,9 @@ pip install streamlit crewai crewai-tools requests beautifulsoup4 python-dotenv 
 - Configure API keys in `.env` file:
   - `PERPLEXITY_API_KEY=pplx-your-key-here`
   - `OPENAI_API_KEY=sk-your-key-here`
-- Start application: `streamlit run main.py`
+- Start application: `python main.py` or `flask run`
 - **TIMING**: Initial startup takes 30-60 seconds. NEVER CANCEL.
-- Application opens at: `http://localhost:8501`
+- Application opens at: `http://localhost:5000`
 
 ### Testing
 - Run basic tests: `python -m unittest tests.test_basic -v` -- takes 0.1 seconds
@@ -61,7 +61,7 @@ pip install streamlit crewai crewai-tools requests beautifulsoup4 python-dotenv 
 ### Manual Testing Requirements
 After making any changes to the application:
 1. **ALWAYS** test the complete user workflow:
-   - Start the application with `streamlit run main.py`
+   - Start the application with `python main.py` or `flask run`
    - Test URL input: Enter a news URL and verify extraction works
    - Test text input: Paste news text and verify analysis runs
    - Verify results display correctly with confidence scores
@@ -98,7 +98,7 @@ print('OpenAI:', os.getenv('OPENAI_API_KEY')[:10] + '...')
 ### Project Structure (Generated)
 ```
 fake-news-detector/
-├── main.py                     # Streamlit application entry point
+├── main.py                     # Flask application entry point
 ├── requirements.txt            # Python dependencies
 ├── .env.example               # Environment template
 ├── config/                    # Configuration files
@@ -117,30 +117,32 @@ fake-news-detector/
 ```
 
 ### Key Files to Monitor
-- Always check `main.py` after making changes to ensure Streamlit integration works
+- Always check `main.py` after making changes to ensure Flask integration works
 - Verify `config/agents.yaml` when modifying agent behavior
 - Update `requirements.txt` when adding new dependencies
 - Check `.env.example` when adding new environment variables
 
 ### Performance Monitoring
-- **Streamlit cache**: Clear with `streamlit cache clear` if experiencing issues
+- **Flask cache**: Clear Flask cache or restart application if experiencing caching issues
 - **Log locations**:
-  - `~/.streamlit/logs/streamlit.log` - Streamlit application logs
+  - Application logs (check console output or configured logging)
   - `crew_execution.log` - Agent execution logs (when implemented)
   - `api_calls.log` - API call history (when implemented)
 
 ### Debugging Commands
 ```bash
 # Run with debug output
+export FLASK_DEBUG=1
 export DEBUG=True
-streamlit run main.py
+python main.py
 
-# Monitor logs in real-time
-tail -f ~/.streamlit/logs/streamlit.log
+# Run Flask in development mode
+export FLASK_ENV=development
+flask run
 
 # Profile performance (if needed)
 pip install py-spy
-py-spy record -o profile.svg -- streamlit run main.py
+py-spy record -o profile.svg -- python main.py
 ```
 
 ## Agent System Architecture
@@ -177,8 +179,8 @@ pip install --upgrade certifi
 
 ### Runtime Issues
 ```bash
-# Clear Streamlit cache
-streamlit cache clear
+# Restart Flask application to clear any cache issues
+# Stop the application (Ctrl+C) and restart with python main.py
 
 # Reset virtual environment
 rm -rf venv/
