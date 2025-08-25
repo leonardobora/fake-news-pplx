@@ -1,0 +1,75 @@
+# Environment variables (contains sensitive API keys)
+.env
+
+# Python virtual environments
+venv/
+venv_windows/
+env/
+ENV/
+.venv/
+
+# Python cache and compiled files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+.pyc
+
+# Development and testing files
+debug_*.py
+test_*.py
+console_main.py
+main.py
+SETUP_STATUS.md
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Flask specific
+instance/
+.cache
+
+# Database files
+*.db
+*.sqlite
+
+# Temporary files
+*.tmp
+*.temp
+
+# Build and distribution files
+build/
+dist/
+*.egg-info/
+
+# Coverage reports
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# Local development notes
+notes.txt
+TODO.txt

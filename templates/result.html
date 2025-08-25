@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultado da Análise - Detector de Fake News</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .back-btn {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+        
+        .result-container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status-warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .content-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .analysis-section {
+            margin-bottom: 30px;
+            padding: 25px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .section-title {
+            color: #667eea;
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .icon {
+            font-size: 1.5rem;
+        }
+        
+        .url-info {
+            background: #e8f4f8;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .url-info strong {
+            color: #0c5460;
+        }
+        
+        .content-preview {
+            background: #f1f3f4;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #28a745;
+            font-style: italic;
+            margin: 15px 0;
+        }
+        
+        .analysis-result {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            white-space: pre-wrap;
+            line-height: 1.7;
+        }
+        
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .warning-message {
+            background: #fff3cd;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .metric {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #e9ecef;
+        }
+        
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .metric-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+        
+        .actions {
+            margin-top: 30px;
+            text-align: center;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin: 0 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+            box-shadow: 0 5px 15px rgba(108, 117, 125, 0.3);
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .result-container {
+                padding: 20px;
+            }
+            
+            .btn {
+                display: block;
+                margin: 10px 0;
+            }
+        }
+        
+        .highlight {
+            background: linear-gradient(120deg, #a8edea 0%, #fed6e3 100%);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        
+        .copy-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+        
+        .copy-btn:hover {
+            background: #218838;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="/" class="back-btn">← Voltar para Análise</a>
+            <h1>📊 Resultado da Análise</h1>
+        </div>
+        
+        <div class="result-container">
+            {% if result.status == 'success' %}
+                <div class="status-indicator status-success">
+                    ✅ Análise Concluída com Sucesso
+                </div>
+                
+                {% if analysis_type == 'url' %}
+                    <!-- Análise de URL -->
+                    <div class="content-section">
+                        <h2 class="section-title">
+                            <span class="icon">🌐</span>
+                            Informações da URL
+                        </h2>
+                        
+                        {% if result.content_data %}
+                            <div class="url-info">
+                                <p><strong>URL:</strong> {{ result.content_data.url }}</p>
+                                <p><strong>Domínio:</strong> {{ result.content_data.domain }}</p>
+                                <p><strong>Título:</strong> {{ result.content_data.title }}</p>
+                            </div>
+                            
+                            {% if result.content_data.content %}
+                                <h4>Prévia do Conteúdo:</h4>
+                                <div class="content-preview">
+                                    {{ result.content_data.content[:300] }}{% if result.content_data.content|length > 300 %}...{% endif %}
+                                </div>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                {% elif analysis_type == 'text' %}
+                    <!-- Análise de Texto -->
+                    <div class="content-section">
+                        <h2 class="section-title">
+                            <span class="icon">📝</span>
+                            Informações do Texto
+                        </h2>
+                        
+                        {% if result.text_data %}
+                            <div class="metrics">
+                                <div class="metric">
+                                    <div class="metric-value">{{ result.text_data.length }}</div>
+                                    <div class="metric-label">Caracteres</div>
+                                </div>
+                                <div class="metric">
+                                    <div class="metric-value">{{ (result.text_data.length / 5) | round | int }}</div>
+                                    <div class="metric-label">Palavras (aprox.)</div>
+                                </div>
+                            </div>
+                            
+                            <h4>Prévia do Texto Analisado:</h4>
+                            <div class="content-preview">
+                                {{ result.text_data.content }}
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endif %}
+                
+                <!-- Análise da IA -->
+                <div class="analysis-section">
+                    <h2 class="section-title">
+                        <span class="icon">🤖</span>
+                        Análise da Inteligência Artificial
+                        <button class="copy-btn" onclick="copyAnalysis()">Copiar</button>
+                    </h2>
+                    
+                    {% if result.analysis %}
+                        {% if result.analysis.status == 'success' %}
+                            <div class="analysis-result" id="analysis-content">{{ result.analysis.content }}</div>
+                        {% elif result.analysis.status == 'warning' %}
+                            <div class="warning-message">
+                                ⚠️ {{ result.analysis.content }}
+                            </div>
+                        {% else %}
+                            <div class="error-message">
+                                ❌ {{ result.analysis.content }}
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="error-message">
+                            ❌ Análise não disponível
+                        </div>
+                    {% endif %}
+                </div>
+                
+            {% elif result.status == 'error' %}
+                <div class="status-indicator status-error">
+                    ❌ Erro na Análise
+                </div>
+                
+                <div class="error-message">
+                    <h3>Erro Encontrado:</h3>
+                    <p>{{ result.error }}</p>
+                    
+                    {% if result.url %}
+                        <p><strong>URL tentada:</strong> {{ result.url }}</p>
+                    {% endif %}
+                </div>
+                
+            {% else %}
+                <div class="status-indicator status-warning">
+                    ⚠️ Status Desconhecido
+                </div>
+                
+                <div class="warning-message">
+                    <p>Status da análise não reconhecido. Por favor, tente novamente.</p>
+                </div>
+            {% endif %}
+            
+            <!-- Ações -->
+            <div class="actions">
+                <a href="/" class="btn">🔍 Nova Análise</a>
+                <button onclick="window.print()" class="btn btn-secondary">🖨️ Imprimir Relatório</button>
+                <button onclick="shareResult()" class="btn btn-secondary">📤 Compartilhar</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function copyAnalysis() {
+            const analysisContent = document.getElementById('analysis-content');
+            if (analysisContent) {
+                const text = analysisContent.textContent;
+                navigator.clipboard.writeText(text).then(function() {
+                    const btn = event.target;
+                    const originalText = btn.textContent;
+                    btn.textContent = 'Copiado!';
+                    btn.style.background = '#28a745';
+                    setTimeout(() => {
+                        btn.textContent = originalText;
+                        btn.style.background = '#28a745';
+                    }, 2000);
+                }).catch(function(err) {
+                    console.error('Erro ao copiar: ', err);
+                    alert('Erro ao copiar o texto');
+                });
+            }
+        }
+        
+        function shareResult() {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Resultado da Análise de Fake News',
+                    text: 'Confira o resultado da análise de veracidade desta notícia',
+                    url: window.location.href
+                }).catch(console.error);
+            } else {
+                // Fallback: copiar URL
+                navigator.clipboard.writeText(window.location.href).then(function() {
+                    alert('Link copiado para a área de transferência!');
+                }).catch(function(err) {
+                    console.error('Erro ao copiar: ', err);
+                    alert('Erro ao compartilhar');
+                });
+            }
+        }
+        
+        // Destacar palavras-chave na análise
+        document.addEventListener('DOMContentLoaded', function() {
+            const analysisContent = document.getElementById('analysis-content');
+            if (analysisContent) {
+                let content = analysisContent.innerHTML;
+                
+                // Palavras-chave para destacar
+                const keywords = [
+                    'fake news', 'falso', 'verdadeiro', 'confiável', 'suspeito',
+                    'verificado', 'desinformação', 'credibilidade', 'fonte'
+                ];
+                
+                keywords.forEach(keyword => {
+                    const regex = new RegExp(`\\b${keyword}\\b`, 'gi');
+                    content = content.replace(regex, `<span class="highlight">${keyword}</span>`);
+                });
+                
+                analysisContent.innerHTML = content;
+            }
+        });
+        
+        // Auto-scroll para a análise
+        setTimeout(() => {
+            const analysisSection = document.querySelector('.analysis-section');
+            if (analysisSection) {
+                analysisSection.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'center' 
+                });
+            }
+        }, 500);
+    </script>
+</body>
+</html>

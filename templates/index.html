@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detector de Fake News</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .status-bar {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            color: white;
+        }
+        
+        .main-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        .analysis-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .option-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 25px;
+            transition: all 0.3s ease;
+        }
+        
+        .option-card:hover {
+            border-color: #667eea;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.1);
+        }
+        
+        .option-card h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .icon {
+            font-size: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        input[type="url"], textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        
+        input[type="url"]:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .alerts {
+            margin-bottom: 20px;
+        }
+        
+        .alert {
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        
+        .alert-error {
+            background: #fee;
+            color: #c33;
+            border: 1px solid #fcc;
+        }
+        
+        .alert-success {
+            background: #efe;
+            color: #363;
+            border: 1px solid #cfc;
+        }
+        
+        .alert-warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .feature {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+        
+        .footer {
+            text-align: center;
+            color: white;
+            opacity: 0.8;
+            margin-top: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .analysis-options {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .container {
+                padding: 10px;
+            }
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 Detector de Fake News</h1>
+            <p>Verifique a veracidade de notícias usando IA avançada</p>
+        </div>
+        
+        <div class="status-bar">
+            <strong>Status da API Perplexity:</strong> {{ api_status }}
+        </div>
+        
+        <div class="main-content">
+            <!-- Alertas -->
+            <div class="alerts">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+            </div>
+            
+            <div class="analysis-options">
+                <!-- Análise por URL -->
+                <div class="option-card">
+                    <h3>
+                        <span class="icon">🌐</span>
+                        Analisar por URL
+                    </h3>
+                    <p style="margin-bottom: 20px; color: #666;">
+                        Cole o link da notícia que deseja verificar
+                    </p>
+                    
+                    <form action="/analyze_url" method="POST" onsubmit="showLoading(this)">
+                        <div class="form-group">
+                            <label for="url">URL da Notícia:</label>
+                            <input 
+                                type="url" 
+                                id="url" 
+                                name="url" 
+                                placeholder="https://exemplo.com/noticia"
+                                required
+                            >
+                        </div>
+                        <button type="submit" class="btn">
+                            Analisar URL
+                        </button>
+                    </form>
+                </div>
+                
+                <!-- Análise por Texto -->
+                <div class="option-card">
+                    <h3>
+                        <span class="icon">📝</span>
+                        Analisar Texto
+                    </h3>
+                    <p style="margin-bottom: 20px; color: #666;">
+                        Cole o texto da notícia diretamente
+                    </p>
+                    
+                    <form action="/analyze_text" method="POST" onsubmit="showLoading(this)">
+                        <div class="form-group">
+                            <label for="text">Texto da Notícia:</label>
+                            <textarea 
+                                id="text" 
+                                name="text" 
+                                placeholder="Cole aqui o texto da notícia para análise..."
+                                required
+                                minlength="50"
+                            ></textarea>
+                        </div>
+                        <button type="submit" class="btn">
+                            Analisar Texto
+                        </button>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Loading -->
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Analisando... Por favor, aguarde.</p>
+            </div>
+            
+            <!-- Recursos -->
+            <div class="features">
+                <div class="feature">
+                    <span class="feature-icon">🤖</span>
+                    <h4>IA Avançada</h4>
+                    <p>Powered by Perplexity AI para análises precisas</p>
+                </div>
+                <div class="feature">
+                    <span class="feature-icon">⚡</span>
+                    <h4>Análise Rápida</h4>
+                    <p>Resultados em segundos com alta confiabilidade</p>
+                </div>
+                <div class="feature">
+                    <span class="feature-icon">🔗</span>
+                    <h4>Múltiplas Fontes</h4>
+                    <p>Verificação cruzada com fontes confiáveis</p>
+                </div>
+                <div class="feature">
+                    <span class="feature-icon">📊</span>
+                    <h4>Score de Confiança</h4>
+                    <p>Avaliação numérica da credibilidade</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>&copy; 2024 Detector de Fake News - Sistema de Verificação Inteligente</p>
+        </div>
+    </div>
+    
+    <script>
+        function showLoading(form) {
+            document.getElementById('loading').style.display = 'block';
+            // Scroll para o loading
+            document.getElementById('loading').scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'center' 
+            });
+        }
+        
+        // Exemplo de validação de URL
+        document.getElementById('url').addEventListener('blur', function() {
+            let url = this.value;
+            if (url && !url.startsWith('http://') && !url.startsWith('https://')) {
+                this.value = 'https://' + url;
+            }
+        });
+        
+        // Contador de caracteres para textarea
+        document.getElementById('text').addEventListener('input', function() {
+            const current = this.value.length;
+            const min = 50;
+            
+            if (current < min) {
+                this.style.borderColor = '#ff6b6b';
+            } else {
+                this.style.borderColor = '#51cf66';
+            }
+        });
+    </script>
+</body>
+</html>
