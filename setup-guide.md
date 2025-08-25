@@ -84,7 +84,7 @@ nano .env  # ou use seu editor preferido
 **Conteúdo do arquivo .env:**
 ```env
 # Chaves de API obrigatórias
-PERPLEXITY_API_KEY=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
+PERPLEXITY_API_KEY=pplx-your-key-here
 OPENAI_API_KEY=sk-your-openai-key-here
 
 # Configurações opcionais
